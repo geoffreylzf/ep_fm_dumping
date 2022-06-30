@@ -49,7 +49,7 @@ class Api {
         handler.next(options);
       }),
     );
-    _dioLocal.interceptors.add(LogInterceptor());
+    // _dioLocal.interceptors.add(LogInterceptor());
 
     _dioGlobal = Dio();
     _dioGlobal.options.baseUrl = BASE_GLOBAL_URL;

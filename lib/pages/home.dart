@@ -98,7 +98,7 @@ class HomePage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "SLOT # : ${dump.slotNo ?? ''}\n"
+                                      "SLOT # : ${dump.storeCode ?? ''}\n"
                                       "BUCKET QTY : ${dump.bucketQtyTtl ?? ''}\n"
                                       "BAG QTY : ${dump.bagQtyTtl ?? ''}",
                                       style: const TextStyle(color: Colors.green),

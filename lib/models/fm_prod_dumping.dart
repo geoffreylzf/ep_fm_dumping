@@ -11,7 +11,9 @@ class FmProdDumping {
   String createDate;
 
   int? entryId;
-  int? slotNo;
+  int? storeId;
+  String? storeCode;
+  String? storeName;
   double? bucketQtyTtl;
   int? bagQtyTtl;
   String? timeStart;
@@ -28,7 +30,9 @@ class FmProdDumping {
     this.weight,
     this.createDate, {
     this.entryId,
-    this.slotNo,
+    this.storeId,
+    this.storeCode,
+    this.storeName,
     this.bucketQtyTtl,
     this.bagQtyTtl,
     this.timeStart,
@@ -45,7 +49,9 @@ class FmProdDumping {
         json['weight'] is int ? (json['weight'] as int).toDouble() : json['weight'] as double,
         json['create_date'] as String,
         entryId: json['entry_id'] as int?,
-        slotNo: json['slot_no'] as int?,
+        storeId: json['store_id'] as int?,
+        storeCode: json['store_code'] as String?,
+        storeName: json['store_name'] as String?,
         bucketQtyTtl: json['bucket_qty_ttl'] is int
             ? (json['bucket_qty_ttl'] as int).toDouble()
             : json['bucket_qty_ttl'] as double?,
@@ -61,7 +67,7 @@ class FmProdDumping {
   Map<String, dynamic> toEntryJson() => <String, dynamic>{
         'id': id,
         'entry_id': entryId,
-        'slot_no': slotNo,
+        'store_id': storeId,
         'bucket_qty_ttl': bucketQtyTtl,
         'bag_qty_ttl': bagQtyTtl,
         'time_start': timeStart,

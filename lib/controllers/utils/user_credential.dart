@@ -45,16 +45,27 @@ class UserCredentialController extends GetxController {
     await _sp.setString(PASSWORD, pw);
   }
 
+  Future<void> clearCredentialInfo() async {
+    _username = null;
+    _password = null;
+    await _sp.remove(USERNAME);
+    await _sp.remove(PASSWORD);
+  }
+
   Future<void> login({String? un, String? pw}) async {
     un = un ?? _username;
     pw = pw ?? _password;
 
-    await Api().dio.post(urlLogin, data: {
-      'username': un,
-      'password': pw,
-    });
-
-    await setCredentialInfo(un!, pw!);
+    try {
+      await setCredentialInfo(un!, pw!);
+      final res = await Api().dio.post(urlLogin);
+      if (res.data["cod"] != 200){
+        throw Exception("Authentication Failed");
+      }
+    } catch (e) {
+      await clearCredentialInfo();
+      rethrow;
+    }
   }
 
   String getBasicCredential() {

@@ -1,5 +1,6 @@
 import 'package:ep_fm_dumping/controllers/dumps/_id/index.dart';
 import 'package:ep_fm_dumping/utils/node_util.dart';
+import 'package:ep_fm_dumping/widgets/form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -79,26 +80,32 @@ class EntryForm extends StatelessWidget {
     return Form(
       key: ctrl.formKey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
-            controller: ctrl.tecSlotNo,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Slot #",
-              contentPadding: EdgeInsets.all(8),
-            ),
-            enabled: isCreate,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "Cannot blank";
-              }
-              if (int.tryParse(value) == null) {
-                return "Number only";
-              }
-              return null;
-            },
-          ),
+          const FormItemTitle("Slot #"),
+          isCreate
+              ? Obx(
+                  () => DropdownButton<int>(
+                    hint: const Text("Slot #"),
+                    isExpanded: true,
+                    value: ctrl.rxSelectedStoreId.value,
+                    onChanged: (v) {
+                      ctrl.rxSelectedStoreId.value = v;
+                    },
+                    items: ctrl.rxStoreList.value.map(
+                      (r) {
+                        return DropdownMenuItem(
+                          value: r.id,
+                          child: Text(r.storeCode),
+                        );
+                      },
+                    ).toList(),
+                  ),
+                )
+              : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(ctrl.rxFmProdDumping.value?.storeCode ?? ""),
+              ),
           Container(height: 8),
           Row(
             children: [
@@ -112,15 +119,6 @@ class EntryForm extends StatelessWidget {
                     contentPadding: EdgeInsets.all(8),
                   ),
                   enabled: isCreate,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Cannot blank";
-                    }
-                    if (double.tryParse(value) == null) {
-                      return "Number with decimal only";
-                    }
-                    return null;
-                  },
                 ),
               ),
               Container(width: 8),
@@ -134,15 +132,6 @@ class EntryForm extends StatelessWidget {
                   contentPadding: EdgeInsets.all(8),
                 ),
                 enabled: isCreate,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Cannot blank";
-                  }
-                  if (int.tryParse(value) == null) {
-                    return "Number only";
-                  }
-                  return null;
-                },
               )),
             ],
           ),
@@ -288,7 +277,7 @@ class WorkerListDisplay extends StatelessWidget {
         ),
         Obx(() {
           final isCreate = ctrl.rxIsCreate.value;
-          if (!isCreate){
+          if (!isCreate) {
             return Container();
           }
           return Container(

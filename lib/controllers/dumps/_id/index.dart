@@ -4,6 +4,7 @@ import 'package:ep_fm_dumping/controllers/home.dart';
 import 'package:ep_fm_dumping/models/fm_person_worker.dart';
 import 'package:ep_fm_dumping/models/fm_prod_dumping.dart';
 import 'package:ep_fm_dumping/models/fm_prod_dumping_entry_worker.dart';
+import 'package:ep_fm_dumping/models/store.dart';
 import 'package:ep_fm_dumping/modules/api.dart';
 import 'package:ep_fm_dumping/utils/xanx.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +17,19 @@ class DumpIdIndexController extends GetxController {
 
   final timeFormat = DateFormat('HH:mm:ss');
 
+  final rxStoreList = Rx<List<Store>>([]);
   final rxFmProdDumping = Rx<FmProdDumping?>(null);
   final rxIsCreate = Rx<bool>(false);
 
   final formKey = GlobalKey<FormState>();
-  final tecSlotNo = TextEditingController();
   final tecBucketQtyTtl = TextEditingController();
   final tecBagQtyTtl = TextEditingController();
   final tecTimeStart = TextEditingController();
   final tecTimeEnd = TextEditingController();
 
   final rxFmPersonWorkerList = Rx<List<FmPersonWorker>>([]);
+
+  final rxSelectedStoreId = Rx<int?>(null);
 
   @override
   void onInit() async {
@@ -37,7 +40,6 @@ class DumpIdIndexController extends GetxController {
 
   @override
   void onClose() {
-    tecSlotNo.dispose();
     tecBucketQtyTtl.dispose();
     tecBagQtyTtl.dispose();
     tecTimeStart.dispose();
@@ -47,14 +49,25 @@ class DumpIdIndexController extends GetxController {
   loadDumping({bool isShowDialog = true}) async {
     try {
       if (isShowDialog) XanX.showLoadingDialog();
-      final res = await Api().dio.get(
+
+      final resStoreList = await Api().dio.get(
+        urlLookup,
+        queryParameters: {'type': 'store_list'},
+      );
+
+      /// remove existing workers
+      final storeList = (resStoreList.data as List).map((e) => Store.fromJson(e)).toList();
+      storeList.add(Store(null, "-", "-"));
+      rxStoreList.value = storeList;
+
+      final resDump = await Api().dio.get(
         urlLookup,
         queryParameters: {'type': 'dump', 'id': id},
       );
-      rxFmProdDumping.value = FmProdDumping.fromJson(res.data);
+      rxFmProdDumping.value = FmProdDumping.fromJson(resDump.data);
       final dump = rxFmProdDumping.value;
 
-      tecSlotNo.text = dump?.slotNo?.toString() ?? "";
+      rxSelectedStoreId.value = rxFmProdDumping.value!.storeId;
       tecBucketQtyTtl.text = dump?.bucketQtyTtl?.toString() ?? "";
       tecBagQtyTtl.text = dump?.bagQtyTtl?.toString() ?? "";
       tecTimeStart.text = dump?.timeStart?.toString() ?? "";
@@ -127,9 +140,9 @@ class DumpIdIndexController extends GetxController {
     try {
       XanX.showLoadingDialog();
 
-      rxFmProdDumping.value!.slotNo = int.parse(tecSlotNo.text);
-      rxFmProdDumping.value!.bucketQtyTtl = double.parse(tecBucketQtyTtl.text);
-      rxFmProdDumping.value!.bagQtyTtl = int.parse(tecBagQtyTtl.text);
+      rxFmProdDumping.value!.storeId = rxSelectedStoreId.value;
+      rxFmProdDumping.value!.bucketQtyTtl = double.tryParse(tecBucketQtyTtl.text);
+      rxFmProdDumping.value!.bagQtyTtl = int.tryParse(tecBagQtyTtl.text);
       rxFmProdDumping.value!.timeStart = tecTimeStart.text;
       rxFmProdDumping.value!.timeEnd = tecTimeEnd.text;
 
